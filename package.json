@@ -1,15 +1,15 @@
 {
-  "name": "project",
-  "dependencies": {
-    "openai": "3.1.0"
-  },
-  "devDependencies": {
-    "vite": "latest"
+  "name": "scrimba-ai-movie-pitch",
+  "version": "1.0.0",
+  "description": "Turn a one-sentence idea into a full movie pitch with AI: title, synopsis, cast and poster.",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18"
   },
   "scripts": {
-    "start": "vite",
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js"
   }
 }

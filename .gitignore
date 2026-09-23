@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Secrets – never commit your real key
+.env
+.env.*
+!.env.example
+
+# System files
+.DS_Store
+Thumbs.db

@@ -1,52 +1,154 @@
 <!doctype html>
-<html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Movie Pitch – AI movie ideas</title>
+  <meta name="description" content="Give Movie Boss a one-sentence idea and get a full movie pitch: title, synopsis, cast and a poster. Built with the OpenAI API.">
+  <meta name="theme-color" content="#E4D6A9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1E120B" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
 
-	<head><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
-		<title>Movie Pitch</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Playfair+Display+SC:wght@700&family=Poppins:wght@400;700&display=swap"
-		rel="stylesheet">
-		<link rel="stylesheet" href="index.css">
-	</head>
+  <!-- Runs before the page paints, so the saved theme never flashes. -->
+  <script src="js/theme-init.js"></script>
 
-	<body>
-		<header>
-			<img src="./images/logo-movie.png" alt="MoviePitch">
-			<a href="/"><span>Movie</span>Pitch</a>
-		</header>
-		<main>	
-			<!-- The Setup -->	
-			<section id="setup-container">
-				<div class="setup-inner">
-					<img src="/images/movieboss.png">
-					<div class="speech-bubble-ai" id="speech-bubble-ai">
-						<p id="movie-boss-text">
-							Give me a one-sentence concept and I'll give you an eye-catching title, a synopsis the studios will love, a movie poster...
-							AND choose the cast!
-						</p>
-					</div>
-				</div>
-				<div class="setup-inner setup-input-container" id="setup-input-container">
-					<textarea id="setup-textarea" placeholder="An evil genius wants to take over the world using AI."></textarea>
-					<button class="send-btn" id="send-btn" aria-label="send">
-							<img src="images/send-btn-icon.png" alt="send">
-					</button>
-				</div>
-			</section>	
-			<!-- The Output -->	
-			<section class="output-container" id="output-container">
-				<div id="output-img-container" class="output-img-container"></div>
-				<h1 id="output-title"></h1>
-				<h2 id="output-stars"></h2>
-				<p id="output-text"></p>
-			</section>
-		</main>	
-		<footer>
-			&copy; 2023 MoviePitch All rights reserved
-		</footer>
-		<script type="module" src="index.js"></script>
-	</body>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Karla:wght@400;700&family=Limelight&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
 
+  <!-- Living background: projector beam, film strips and film grain -->
+  <div class="backdrop" aria-hidden="true">
+    <div class="backdrop__beam"></div>
+    <div class="backdrop__strip backdrop__strip--left"></div>
+    <div class="backdrop__strip backdrop__strip--right"></div>
+    <div class="backdrop__grain"></div>
+  </div>
+
+  <header class="marquee">
+    <a class="marquee__brand" href="./" aria-label="Movie Pitch home">
+      <svg class="marquee__logo" viewBox="0 0 64 64" aria-hidden="true">
+        <g class="clapper-top">
+          <rect x="8" y="10" width="48" height="11" rx="2"/>
+          <path class="clapper-stripes" d="M16 10l6 11M29 10l6 11M42 10l6 11"/>
+        </g>
+        <rect x="8" y="26" width="48" height="28" rx="3"/>
+      </svg>
+      <span>Movie<em>Pitch</em></span>
+    </a>
+    <div class="marquee__bulbs" aria-hidden="true"></div>
+    <div class="marquee__actions">
+      <span class="mode-badge" id="mode-badge" data-mode="checking">Checking…</span>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch to dark theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <section class="stage reveal" id="stage" aria-labelledby="stage-title">
+      <div class="stage__intro">
+        <p class="eyebrow">Now casting · Scene 1</p>
+        <h1 id="stage-title">Pitch your movie <span>in one sentence.</span></h1>
+        <p class="lead">Movie Boss will turn it into a title, a synopsis the studios will love, a cast and a poster.</p>
+      </div>
+
+      <div class="boss">
+        <img class="boss__img" src="images/movie-boss.webp" width="520" height="815"
+             alt="Movie Boss, a cartoon producer in a dark suit and sunglasses, opening his arms wide">
+        <div class="bubble" id="bubble">
+          <p id="boss-text" aria-live="polite">Give me a one-sentence concept and I'll give you an eye-catching title, a synopsis, a movie poster… AND choose the cast!</p>
+          <div class="reel" id="reel" hidden aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+
+      <form class="script" id="pitch-form" novalidate>
+        <div class="script__head">
+          <label for="idea">Your one-line idea</label>
+          <span class="script__count" id="idea-count">0 / 300</span>
+        </div>
+        <textarea id="idea" name="idea" rows="3" maxlength="300" required
+                  placeholder="An evil genius wants to take over the world using AI."></textarea>
+        <p class="script__error" id="idea-error" role="alert"></p>
+
+        <div class="script__examples" aria-label="Example ideas">
+          <span>Try:</span>
+          <button type="button" class="chip" data-idea="Two rival food trucks fall in love during a city-wide cook-off.">Food truck romance</button>
+          <button type="button" class="chip" data-idea="A lonely astronaut discovers her space station has a second, secret crew.">Secret space crew</button>
+          <button type="button" class="chip" data-idea="A retired detective must solve one last case using only his grandchildren's help.">Last case</button>
+        </div>
+
+        <button class="btn btn--primary" id="pitch-btn" type="submit">
+          <svg class="btn__icon" viewBox="0 0 64 64" aria-hidden="true">
+            <g class="clapper-top">
+              <rect x="8" y="10" width="48" height="11" rx="2"/>
+              <path class="clapper-stripes" d="M16 10l6 11M29 10l6 11M42 10l6 11"/>
+            </g>
+            <rect x="8" y="26" width="48" height="28" rx="3"/>
+          </svg>
+          <span>Action! Pitch it</span>
+        </button>
+      </form>
+    </section>
+
+    <section class="premiere" id="premiere" hidden aria-labelledby="movie-title">
+      <div class="poster reveal" id="poster">
+        <div class="poster__art" id="poster-art">
+          <span class="poster__sun" aria-hidden="true"></span>
+          <span class="poster__rays" aria-hidden="true"></span>
+        </div>
+        <div class="poster__text">
+          <p class="poster__genre" id="movie-genre"></p>
+          <h2 class="poster__title" id="movie-title"></h2>
+          <p class="poster__tagline" id="movie-tagline"></p>
+        </div>
+      </div>
+
+      <div class="details">
+        <dl class="stats reveal">
+          <div class="stat">
+            <dt>Runtime</dt>
+            <dd><span class="count" id="stat-runtime" data-target="0">0</span> min</dd>
+          </div>
+          <div class="stat">
+            <dt>Budget</dt>
+            <dd>$<span class="count" id="stat-budget" data-target="0">0</span>M</dd>
+          </div>
+          <div class="stat">
+            <dt>Studio hype</dt>
+            <dd><span class="count" id="stat-score" data-target="0">0</span>%</dd>
+          </div>
+        </dl>
+
+        <article class="screenplay reveal">
+          <h3>Synopsis</h3>
+          <p class="screenplay__logline" id="movie-logline"></p>
+          <p id="movie-synopsis"></p>
+        </article>
+
+        <div class="cast reveal">
+          <h3>Starring</h3>
+          <ul class="cast__list" id="movie-cast"></ul>
+        </div>
+
+        <button class="btn btn--ghost reveal" id="again-btn" type="button">
+          <svg class="btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v5h5"/></svg>
+          <span>Pitch another movie</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="credits">
+    <p>MoviePitch · A <a href="https://scrimba.com/">Scrimba</a> course project, redesigned. Movie Boss says: “I want 10%.”</p>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
 </html>
