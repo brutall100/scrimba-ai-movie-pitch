@@ -4,7 +4,7 @@
   "description": "Turn a one-sentence idea into a full movie pitch with AI: title, synopsis, cast and poster.",
   "private": true,
   "type": "module",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "engines": {
     "node": ">=18"
   },
